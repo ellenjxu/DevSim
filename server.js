@@ -1,3 +1,5 @@
+import {resetSimulation} from "./examples/mujocoUtils.js";
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const fs = require("fs");
@@ -17,70 +19,30 @@ app.get("/", (req, res) => {
 	res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.get("/api/hello", (req, res) => {
-	res.json({message: "Hello from the API!"});
+app.post("/api/reset", (req, res) => {
+	// Resets sim to initial state (same as pressing reset simulation button)
+	resetSimulation();
+	res.json({message: "Simulation reset"});
 });
 
-// get current scene
 app.get("/api/currentScene", (req, res) => {
+	// Gets current scene (ex. humanoid)
 	res.json({scene: XML_FILE_PATH.split("/").pop().replace(".xml", "")});
 });
-// set current scene
+
 app.post("/api/setScene", (req, res) => {
+	// Sets new scene, then rerenders (ex. humanoid -> pendulum)
 	const {scene} = req.body;
 	XML_FILE_PATH = "examples/scenes/" + scene + ".xml";
 	res.json({message: "Scene set to " + scene});
 });
 
-// GET request to fetch current state
-app.get("/api/state", (req, res) => {
-	fs.readFile(XML_FILE_PATH, (err, data) => {
-		if (err) {
-			res.status(500).send("Error reading XML file");
-			return;
-		}
-		parser.parseString(data, (err, result) => {
-			if (err) {
-				res.status(500).send("Error parsing XML file");
-				return;
-			}
-			// Extract and send necessary data, this is a placeholder
-			res.json({
-				position: {x: 0, y: 0, z: 1}, // Example static data
-				timestep: 0.01, // Example static data
-			});
-		});
-	});
+app.post("/api/getState", (req, res) => {
+	// TODO
 });
 
-// POST request to modify the pendulum parameters
-app.post("/api/pendulum", (req, res) => {
-	const {mass, length, otherParams} = req.body;
-	fs.readFile(XML_FILE_PATH, (err, data) => {
-		if (err) {
-			res.status(500).send("Error reading XML file");
-			return;
-		}
-		parser.parseString(data, (err, result) => {
-			if (err) {
-				res.status(500).send("Error parsing XML file");
-				return;
-			}
-			// Modify the XML based on input parameters
-			// This is a placeholder: actual implementation will depend on XML structure and parameters
-			// For example, changing the mass:
-			// result.mujoco.worldbody[0].body[0].geom[0].$.mass = mass;
-
-			const xml = builder.buildObject(result);
-			fs.writeFile(XML_FILE_PATH, xml, (err) => {
-				if (err) {
-					res.status(500).send("Error writing XML file");
-					return;
-				}
-				res.send("Pendulum updated successfully");
-			});
-		});
-	});
+app.post("/api/setParams", (req, res) => {
+	// req is arbitrary json with {"param": value, ...}
 });
 
 const PORT = 3000;

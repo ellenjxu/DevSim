@@ -8,6 +8,7 @@
   </asset>
 
   <worldbody>
+    <!-- arm -->
     <light pos="0 1 1" dir="0 -1 -1" diffuse="1 1 1"/>
     <body pos="0 0 1">
       <joint type="ball"/>
@@ -25,6 +26,7 @@
       </body>
     </body>
 
+    <!-- mass -->
     <body pos="0.3 0 0.1">
       <joint type="free"/>
       <geom size="0.07 0.1" type="cylinder"/>
@@ -32,6 +34,7 @@
     </body>
   </worldbody>
 
+  <!-- string -->
   <tendon>
     <spatial limited="true" range="0 0.6" width="0.005">
       <site site="end1"/>
