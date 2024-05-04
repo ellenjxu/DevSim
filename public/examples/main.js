@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import {GUI} from "three/examples/jsm/libs/lil-gui.module.min.js";
-import {OrbitControls} from "three/examples/jsm/controls/OrbitControls.js";
+import {GUI} from "../node_modules/three/examples/jsm/libs/lil-gui.module.min.js";
+import {OrbitControls} from "../node_modules/three/examples/jsm/controls/OrbitControls.js";
 import {DragStateManager} from "./utils/DragStateManager.js";
 import {
 	setupGUI,
@@ -27,6 +27,28 @@ mujoco.FS.writeFile(
 
 export class MuJoCoDemo {
 	constructor() {
+		// 	this.fetchCurrentScene().then((scene) => {
+		// 		this.initialScene = scene + ".xml";
+		// 		this.initializeScene();
+		// 	});
+		// }
+
+		// async fetchCurrentScene() {
+		// 	const response = await fetch("/api/currentScene");
+		// 	const data = await response.json();
+		// 	return data.scene;
+		// }
+
+		// async initializeScene() {
+		// 	// existing initialization code
+		// 	this.mujoco = await load_mujoco();
+		// 	mujoco.FS.mkdir("/working");
+		// 	mujoco.FS.mount(mujoco.MEMFS, {root: "."}, "/working");
+		// 	mujoco.FS.writeFile(
+		// 		"/working/" + this.initialScene,
+		// 		await (await fetch("./examples/scenes/" + this.initialScene)).text()
+		// 	);
+
 		this.mujoco = mujoco;
 
 		// Load in the state from XML
