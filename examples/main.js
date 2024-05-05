@@ -10,7 +10,7 @@ import   load_mujoco        from '../dist/mujoco_wasm.js';
 const mujoco = await load_mujoco();
 
 // Set up Emscripten's Virtual File System
-var initialScene = "humanoid.xml";
+var initialScene = "ball_scene.xml";
 mujoco.FS.mkdir('/working');
 mujoco.FS.mount(mujoco.MEMFS, { root: '.' }, '/working');
 mujoco.FS.writeFile("/working/" + initialScene, await(await fetch("./examples/scenes/" + initialScene)).text());
@@ -79,7 +79,7 @@ export class MuJoCoDemo {
     await downloadExampleScenesFolder(mujoco);
 
     // Initialize the three.js Scene using the .xml Model in initialScene
-    [this.model, this.state, this.simulation, this.bodies, this.lights] =  
+    [this.model, this.state, this.simulation, this.bodies, this.lights] =
       await loadSceneFromURL(mujoco, initialScene, this);
 
     this.gui = new GUI();
@@ -99,40 +99,21 @@ export class MuJoCoDemo {
       let timestep = this.model.getOptions().timestep;
       if (timeMS - this.mujoco_time > 35.0) { this.mujoco_time = timeMS; }
       while (this.mujoco_time < timeMS) {
+        // Set actuator values for walking
+        let phase = Math.floor(this.mujoco_time / 1000) % 2;
+        let hip_actuation = phase === 0 ? 0.5 : -0.5;
+        let knee_actuation = phase === 0 ? -1 : 1;
+        let ankle_actuation = phase === 0 ? 0.5 : -0.5;
 
-        // Jitter the control state with gaussian random noise
-        if (this.params["ctrlnoisestd"] > 0.0) {
-          let rate  = Math.exp(-timestep / Math.max(1e-10, this.params["ctrlnoiserate"]));
-          let scale = this.params["ctrlnoisestd"] * Math.sqrt(1 - rate * rate);
-          let currentCtrl = this.simulation.ctrl;
-          for (let i = 0; i < currentCtrl.length; i++) {
-            currentCtrl[i] = rate * currentCtrl[i] + scale * standardNormal();
-            this.params["Actuator " + i] = currentCtrl[i];
-          }
-        }
+        this.simulation.ctrl[0] = hip_actuation; // hip_x_right
+        this.simulation.ctrl[1] = hip_actuation; // hip_x_left
+        this.simulation.ctrl[2] = knee_actuation; // knee_right
+        this.simulation.ctrl[3] = knee_actuation; // knee_left
+        this.simulation.ctrl[4] = ankle_actuation; // ankle_y_right
+        this.simulation.ctrl[5] = ankle_actuation; // ankle_y_left
 
-        // Clear old perturbations, apply new ones.
-        for (let i = 0; i < this.simulation.qfrc_applied.length; i++) { this.simulation.qfrc_applied[i] = 0.0; }
-        let dragged = this.dragStateManager.physicsObject;
-        if (dragged && dragged.bodyID) {
-          for (let b = 0; b < this.model.nbody; b++) {
-            if (this.bodies[b]) {
-              getPosition  (this.simulation.xpos , b, this.bodies[b].position);
-              getQuaternion(this.simulation.xquat, b, this.bodies[b].quaternion);
-              this.bodies[b].updateWorldMatrix();
-            }
-          }
-          let bodyID = dragged.bodyID;
-          this.dragStateManager.update(); // Update the world-space force origin
-          let force = toMujocoPos(this.dragStateManager.currentWorld.clone().sub(this.dragStateManager.worldHit).multiplyScalar(this.model.body_mass[bodyID] * 250));
-          let point = toMujocoPos(this.dragStateManager.worldHit.clone());
-          this.simulation.applyForce(force.x, force.y, force.z, 0, 0, 0, point.x, point.y, point.z, bodyID);
-
-          // TODO: Apply pose perturbations (mocap bodies only).
-        }
-
+        // Proceed with the simulation step
         this.simulation.step();
-
         this.mujoco_time += timestep * 1000.0;
       }
 
