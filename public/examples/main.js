@@ -363,7 +363,36 @@ export class MuJoCoDemo {
 			this.mujocoRoot.spheres.instanceMatrix.needsUpdate = true;
 		}
 
-		// Render!
+		// save experiment data
+		if (!this.csvContent) {
+			this.csvContent = "Time,PositionX,PositionY,PositionZ\n";
+		}
+
+		// mass location
+		let tendonEnd = getPosition(
+			this.simulation.wrap_xpos,
+			this.model.ntendon,
+			new THREE.Vector3()
+		);
+		let position = tendonEnd;
+
+		let timestep = this.model.getOptions().timestep;
+		this.csvContent += `${timestep},${position.x},${position.y},${position.z}\n`;
+
+		if (timestep == 1000) {
+			const blob = new Blob([this.csvContent], {
+				type: "text/csv;charset=utf-8;",
+			});
+			const url = URL.createObjectURL(blob);
+			const link = document.createElement("a");
+			link.setAttribute("href", url);
+			link.setAttribute("download", "pendulum_data.csv");
+			link.style.visibility = "hidden";
+			document.body.appendChild(link);
+			link.click();
+			document.body.removeChild(link);
+		}
+
 		this.renderer.render(this.scene, this.camera);
 	}
 }
