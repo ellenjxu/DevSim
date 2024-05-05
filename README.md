@@ -14,5 +14,6 @@ API:
 
 ## demo
 
-https://github.com/ellenjxu/DevSim/assets/56745453/700f1913-0f52-447d-bdbe-a6ee04e2a9b3
+Devin is instructed to create an RL environment with 2 red balls and 1 blue ball, and automatically spins up a MuJoCo instance with live rendering/web access and makes a PR. (demo below, 4x speed)
 
+https://github.com/ellenjxu/DevSim/assets/56745453/3be93afc-0c58-44ba-abbb-3f3b3180ca39
