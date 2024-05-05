@@ -4,6 +4,15 @@ A playground for automated RL env and physics simulations for Devin. Uses MuJoCo
 
 ## Usage
 
+### Run with Devin
+
+Playbooks in `playbook/` to automatically set up Devin with MuJoCo and create new environments.
+
+1. Run playbook `mujoco_wasm.devin.md`, take a snapshot to save sim environment
+2. Modify and run `mujoco_create_env.devin.md` for Devin to create and render simulation env
+
+### Test locally
+
 Render: `node server.js`
 
 API:
