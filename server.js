@@ -1,12 +1,11 @@
-import {resetSimulation} from "./examples/mujocoUtils.js";
+import express from "express";
+import bodyParser from "body-parser";
+import fs from "fs";
+import xml2js from "xml2js";
+import path from "path";
 
-const express = require("express");
-const bodyParser = require("body-parser");
-const fs = require("fs");
-const xml2js = require("xml2js");
 const parser = new xml2js.Parser();
 const builder = new xml2js.Builder();
-const path = require("path");
 
 const app = express();
 app.use(bodyParser.json());
